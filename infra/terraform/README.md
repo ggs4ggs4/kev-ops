@@ -45,6 +45,7 @@ terraform output public_ip
 
 - If `app_domain` is empty, bootstrap uses `<elastic-ip>.nip.io`.
 - `host_port=80` is cheapest/simplest for demos.
+- Commit `.terraform.lock.hcl` to the repo. Do not commit `.terraform/`, `terraform.tfvars`, or `*.tfstate`.
 - To destroy everything:
 
 ```bash

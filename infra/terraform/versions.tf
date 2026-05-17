@@ -17,6 +17,8 @@ provider "aws" {
       Name    = "${var.project_name}-infra"
       Creator = var.creator
       Purpose = var.purpose
+      creator = var.creator
+      purpose = var.purpose
       Project = var.project_name
     }
   }

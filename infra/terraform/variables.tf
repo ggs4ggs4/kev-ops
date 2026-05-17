@@ -13,13 +13,13 @@ variable "project_name" {
 variable "creator" {
   description = "Tag value for resource ownership."
   type        = string
-  default     = "ganes"
+  default     = "ganesh"
 }
 
 variable "purpose" {
   description = "Tag value describing why these resources exist."
   type        = string
-  default     = "ai-league-week5"
+  default     = "kd-ai-league"
 }
 
 variable "instance_type" {

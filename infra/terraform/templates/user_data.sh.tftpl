@@ -1,0 +1,90 @@
+#!/bin/bash
+set -euxo pipefail
+
+dnf update -y
+dnf install -y git docker
+systemctl enable --now docker
+usermod -aG docker ec2-user
+
+if ! docker compose version >/dev/null 2>&1; then
+  mkdir -p /usr/local/lib/docker/cli-plugins
+  curl -SL "https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64" \
+    -o /usr/local/lib/docker/cli-plugins/docker-compose
+  chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
+fi
+
+APP_DIR="/opt/kevops-mcp"
+if [ ! -d "$APP_DIR/.git" ]; then
+  git clone "${repo_url}" "$APP_DIR"
+fi
+
+cd "$APP_DIR"
+git fetch --all
+git checkout "${repo_ref}"
+git pull --ff-only origin "${repo_ref}" || true
+
+TOKEN="$(curl -sS -X PUT 'http://169.254.169.254/latest/api/token' -H 'X-aws-ec2-metadata-token-ttl-seconds: 21600' || true)"
+PUBLIC_IP=""
+if [ -n "$TOKEN" ]; then
+  PUBLIC_IP="$(curl -sS -H "X-aws-ec2-metadata-token: $TOKEN" http://169.254.169.254/latest/meta-data/public-ipv4 || true)"
+fi
+
+APP_DOMAIN_INPUT="${app_domain}"
+if [ -n "$APP_DOMAIN_INPUT" ]; then
+  PUBLIC_HOST="$APP_DOMAIN_INPUT"
+elif [ -n "$PUBLIC_IP" ]; then
+  PUBLIC_HOST="$(echo "$PUBLIC_IP" | tr '.' '-').nip.io"
+else
+  PUBLIC_HOST="localhost"
+fi
+
+if [ "${host_port}" = "80" ]; then
+  PUBLIC_BASE_URL="http://$PUBLIC_HOST"
+else
+  PUBLIC_BASE_URL="http://$PUBLIC_HOST:${host_port}"
+fi
+
+ALLOWED_HOSTS="$PUBLIC_HOST"
+if [ -n "$PUBLIC_IP" ]; then
+  ALLOWED_HOSTS="$ALLOWED_HOSTS,$PUBLIC_IP"
+fi
+ALLOWED_HOSTS="$ALLOWED_HOSTS,localhost,127.0.0.1"
+
+cat > "$APP_DIR/.env" <<EOF
+NODE_ENV=production
+HOST=0.0.0.0
+PORT=8080
+HOST_PORT=${host_port}
+MCP_PATH=/mcp
+PUBLIC_BASE_URL=$PUBLIC_BASE_URL
+ALLOWED_HOSTS=$ALLOWED_HOSTS
+AUTH_REQUIRED=${auth_required}
+AUTH0_ISSUER=${auth0_issuer}
+AUTH0_AUDIENCE=${auth0_audience}
+AUTH0_JWKS_URI=${auth0_jwks_uri}
+AUTH0_TIER_CLAIM=${auth0_tier_claim}
+AUTH0_ROLES_CLAIM=${auth0_roles_claim}
+AUTH0_DEFAULT_TIER=${auth0_default_tier}
+AUTH_REQUIRED_SCOPES=${auth_required_scopes_csv}
+REDIS_URL=redis://redis:6379
+REDIS_PREFIX=kevops
+RATE_LIMIT_FREE_HOURLY=30
+RATE_LIMIT_PREMIUM_HOURLY=150
+RATE_LIMIT_ANALYST_HOURLY=500
+CACHE_NVD_TTL_SEC=3600
+CACHE_NVD_STALE_SEC=86400
+CACHE_KEV_TTL_SEC=1800
+CACHE_KEV_STALE_SEC=86400
+CACHE_EPSS_TTL_SEC=86400
+CACHE_EPSS_STALE_SEC=604800
+CACHE_OSV_TTL_SEC=43200
+CACHE_OSV_STALE_SEC=259200
+NVD_API_KEY=${nvd_api_key}
+LOG_LEVEL=${log_level}
+EOF
+
+cd "$APP_DIR"
+docker compose down || true
+docker compose up -d --build
+
+echo "Deployment complete. PUBLIC_BASE_URL=$PUBLIC_BASE_URL"
