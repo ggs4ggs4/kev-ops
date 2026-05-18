@@ -97,7 +97,7 @@ Health checks:
 
 Create an Auth0 API and configure:
 
-1. API Identifier = a stable URI (example: `https://kev-ops-mcp-api`)
+1. API Identifier = a stable URI (example: `https://kev-ops-mcp-api/mcp`)
 2. Enable RBAC
 3. Enable “Add Permissions in Access Token”
 4. In Tenant Settings -> Advanced, enable Resource Parameter Compatibility Profile

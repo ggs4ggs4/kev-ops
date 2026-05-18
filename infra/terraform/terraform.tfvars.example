@@ -23,9 +23,9 @@ app_domain = ""
 
 auth_required = true
 auth0_issuer  = "https://YOUR_TENANT.us.auth0.com/" # REQUIRED
-auth0_audience = "https://kev-ops-mcp-api" # REQUIRED (stable Auth0 API Identifier; do not bind to EC2/IP)
+auth0_audience = "https://kev-ops-mcp-api/mcp" # REQUIRED (stable Auth0 API Identifier; do not bind to EC2/IP)
 auth0_audience_aliases_csv = "" # Optional, e.g. "http://old-host.nip.io/mcp"
-auth0_resource = "https://kev-ops-mcp-api" # Optional; defaults to auth0_audience
+auth0_resource = "https://kev-ops-mcp-api/mcp" # Optional; defaults to auth0_audience
 auth0_jwks_uri = "https://YOUR_TENANT.us.auth0.com/.well-known/jwks.json" # REQUIRED
 
 auth0_tier_claim   = "https://kevops.example.com/tier"

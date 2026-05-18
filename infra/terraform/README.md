@@ -20,7 +20,7 @@ This is intentionally optimized for hackathon budget.
 - AWS credentials configured
 - repo pushed to a reachable Git URL
 - Auth0 API configured (issuer/audience/JWKS)
-  - `auth0_audience` should be a stable URI (example: `https://kev-ops-mcp-api`)
+  - `auth0_audience` should be a stable URI (example: `https://kev-ops-mcp-api/mcp`)
 
 ## Usage
 
