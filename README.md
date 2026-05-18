@@ -70,12 +70,14 @@ Detailed notes: [docs/ARCHITECTURE.md]
 Copy `.env.example` to `.env` and fill in values:
 
 - `AUTH0_ISSUER` (example: `https://your-tenant.us.auth0.com/`)
-- `AUTH0_AUDIENCE` (your API identifier)
+- `AUTH0_AUDIENCE` (stable API identifier, keep this independent from EC2/IP)
 - `AUTH0_JWKS_URI`
 
 Optional:
 - `REDIS_URL` for distributed rate limits/cache/logs
 - `NVD_API_KEY` to improve NVD API headroom
+- `AUTH0_RESOURCE` (resource identifier advertised in PRM; defaults to `AUTH0_AUDIENCE`)
+- `AUTH0_AUDIENCE_ALIASES` (comma-separated transition audiences during migrations)
 
 ## 2) Install and run locally
 
@@ -95,9 +97,18 @@ Health checks:
 
 Create an Auth0 API and configure:
 
-1. API Identifier = `AUTH0_AUDIENCE`
+1. API Identifier = a stable URI (example: `https://kev-ops-mcp-api`)
 2. Enable RBAC
 3. Enable “Add Permissions in Access Token”
+4. In Tenant Settings -> Advanced, enable Resource Parameter Compatibility Profile
+5. Set Tenant Default Audience = same value as `AUTH0_AUDIENCE`
+6. In API Settings, configure Default Permissions for Third-Party Apps (User-Delegated Access) with:
+   - `mcp:tools`
+   - `tier:free`
+   - `tier:premium`
+   - `tier:analyst`
+
+If you previously used a host-bound audience (for example `http://<ip>.nip.io/mcp`), keep it temporarily in `AUTH0_AUDIENCE_ALIASES` while clients refresh tokens.
 
 Create permissions:
 

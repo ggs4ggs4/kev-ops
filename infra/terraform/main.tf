@@ -26,6 +26,7 @@ data "aws_ami" "al2023" {
 
 locals {
   selected_subnet_id = sort(data.aws_subnets.default_public.ids)[0]
+  effective_ami_id   = var.ami_id != "" ? var.ami_id : data.aws_ami.al2023.id
 }
 
 resource "aws_security_group" "mcp_server" {
@@ -62,7 +63,7 @@ resource "aws_security_group" "mcp_server" {
 }
 
 resource "aws_instance" "mcp_server" {
-  ami           = data.aws_ami.al2023.id
+  ami           = local.effective_ami_id
   instance_type = var.instance_type
   subnet_id     = local.selected_subnet_id
   key_name      = var.key_name
@@ -80,6 +81,10 @@ resource "aws_instance" "mcp_server" {
     volume_type = "gp3"
   }
 
+  lifecycle {
+    ignore_changes = [ami]
+  }
+
   user_data = templatefile("${path.module}/templates/user_data.sh.tftpl", {
     repo_url                 = var.repo_url
     repo_ref                 = var.repo_ref
@@ -88,6 +93,8 @@ resource "aws_instance" "mcp_server" {
     auth_required            = var.auth_required
     auth0_issuer             = var.auth0_issuer
     auth0_audience           = var.auth0_audience
+    auth0_audience_aliases_csv = var.auth0_audience_aliases_csv
+    auth0_resource           = var.auth0_resource != "" ? var.auth0_resource : var.auth0_audience
     auth0_jwks_uri           = var.auth0_jwks_uri
     auth0_tier_claim         = var.auth0_tier_claim
     auth0_roles_claim        = var.auth0_roles_claim

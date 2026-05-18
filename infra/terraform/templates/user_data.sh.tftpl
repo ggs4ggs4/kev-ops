@@ -13,6 +13,13 @@ if ! docker compose version >/dev/null 2>&1; then
   chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
 fi
 
+mkdir -p /usr/local/lib/docker/cli-plugins
+BUILDX_VERSION="v0.34.0"
+curl -fsSL "https://github.com/docker/buildx/releases/download/$${BUILDX_VERSION}/buildx-$${BUILDX_VERSION}.linux-amd64" \
+  -o /usr/local/lib/docker/cli-plugins/docker-buildx
+chmod +x /usr/local/lib/docker/cli-plugins/docker-buildx
+docker buildx version
+
 APP_DIR="/opt/kevops-mcp"
 if [ ! -d "$APP_DIR/.git" ]; then
   git clone "${repo_url}" "$APP_DIR"
@@ -61,6 +68,8 @@ ALLOWED_HOSTS=$ALLOWED_HOSTS
 AUTH_REQUIRED=${auth_required}
 AUTH0_ISSUER=${auth0_issuer}
 AUTH0_AUDIENCE=${auth0_audience}
+AUTH0_AUDIENCE_ALIASES=${auth0_audience_aliases_csv}
+AUTH0_RESOURCE=${auth0_resource}
 AUTH0_JWKS_URI=${auth0_jwks_uri}
 AUTH0_TIER_CLAIM=${auth0_tier_claim}
 AUTH0_ROLES_CLAIM=${auth0_roles_claim}

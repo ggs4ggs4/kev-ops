@@ -15,7 +15,9 @@ const envSchema = z.object({
     .default("true")
     .transform((value) => value.toLowerCase() !== "false"),
   AUTH0_ISSUER: z.string().url(),
-  AUTH0_AUDIENCE: z.string().min(1),
+  AUTH0_AUDIENCE: z.string().url(),
+  AUTH0_AUDIENCE_ALIASES: z.string().default(""),
+  AUTH0_RESOURCE: z.string().url().optional(),
   AUTH0_JWKS_URI: z.string().url().optional(),
   AUTH0_TIER_CLAIM: z.string().default("https://kevops.example.com/tier"),
   AUTH0_ROLES_CLAIM: z.string().default("https://kevops.example.com/roles"),
@@ -63,6 +65,9 @@ const parsed = envSchema.parse(process.env);
 const authRequiredScopes = parsed.AUTH_REQUIRED_SCOPES.split(",")
   .map((scope) => scope.trim())
   .filter(Boolean);
+const authAudienceAliases = parsed.AUTH0_AUDIENCE_ALIASES.split(",")
+  .map((audience) => audience.trim())
+  .filter(Boolean);
 
 const publicBaseUrl = parsed.PUBLIC_BASE_URL ?? `http://localhost:${parsed.PORT}`;
 const allowedHosts = parsed.ALLOWED_HOSTS
@@ -80,6 +85,8 @@ export const config = {
     required: parsed.AUTH_REQUIRED,
     issuer: parsed.AUTH0_ISSUER,
     audience: parsed.AUTH0_AUDIENCE,
+    acceptedAudiences: [parsed.AUTH0_AUDIENCE, ...authAudienceAliases],
+    resource: parsed.AUTH0_RESOURCE ?? parsed.AUTH0_AUDIENCE,
     jwksUri: parsed.AUTH0_JWKS_URI ?? new URL(".well-known/jwks.json", parsed.AUTH0_ISSUER).href,
     tierClaim: parsed.AUTH0_TIER_CLAIM,
     rolesClaim: parsed.AUTH0_ROLES_CLAIM,

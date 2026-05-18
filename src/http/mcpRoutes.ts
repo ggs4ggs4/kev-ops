@@ -72,6 +72,7 @@ function authMetadata() {
     "tier:analyst",
     ...config.auth.requiredScopes,
   ];
+  const scopesSupported = [...new Set(scopes)];
   return {
     issuer,
     authorization_endpoint: `${issuer}/authorize`,
@@ -81,7 +82,7 @@ function authMetadata() {
     response_types_supported: ["code"],
     grant_types_supported: ["authorization_code", "refresh_token", "client_credentials"],
     code_challenge_methods_supported: ["S256"],
-    scopes_supported: [...new Set(scopes)],
+    scopes_supported: scopesSupported,
     token_endpoint_auth_methods_supported: ["none", "client_secret_post"],
   };
 }
@@ -90,16 +91,48 @@ export function installAuthMetadataRoutes(
   app: Express,
 ): string {
   const mcpServerUrl = new URL(config.mcpPath, config.publicBaseUrl);
-  const resourceMetadataUrl = getOAuthProtectedResourceMetadataUrl(mcpServerUrl);
+  const resourceServerUrl = new URL(config.auth.resource);
+  const oauth = authMetadata();
+  const scopesSupported = [
+    "mcp:tools",
+    "tier:free",
+    "tier:premium",
+    "tier:analyst",
+  ];
+  const canonicalResourceMetadataUrl = getOAuthProtectedResourceMetadataUrl(mcpServerUrl);
+  const configuredResourceMetadataUrl = getOAuthProtectedResourceMetadataUrl(resourceServerUrl);
   app.use(
     mcpAuthMetadataRouter({
-      oauthMetadata: authMetadata(),
-      resourceServerUrl: mcpServerUrl,
-      scopesSupported: ["mcp:tools", "tier:free", "tier:premium", "tier:analyst"],
+      oauthMetadata: oauth,
+      resourceServerUrl,
+      scopesSupported,
       resourceName: "KEV-OPS MCP Server",
     }),
   );
-  return resourceMetadataUrl;
+
+  // Serve PRM at the canonical MCP-derived path even when the resource identifier is decoupled.
+  if (configuredResourceMetadataUrl !== canonicalResourceMetadataUrl) {
+    app.get(new URL(canonicalResourceMetadataUrl).pathname, (_req, res) => {
+      res.json({
+        resource: resourceServerUrl.href,
+        authorization_servers: [oauth.issuer],
+        scopes_supported: scopesSupported,
+        resource_name: "KEV-OPS MCP Server",
+      });
+    });
+  }
+
+  // Some clients probe this path-specific fallback; serve the same metadata for compatibility.
+  const pathSpecificAuthServerMetadataPath = `/.well-known/oauth-authorization-server${
+    mcpServerUrl.pathname === "/" ? "" : mcpServerUrl.pathname
+  }`;
+  if (pathSpecificAuthServerMetadataPath !== "/.well-known/oauth-authorization-server") {
+    app.get(pathSpecificAuthServerMetadataPath, (_req, res) => {
+      res.json(oauth);
+    });
+  }
+
+  return canonicalResourceMetadataUrl;
 }
 
 export function createMcpRouteHandlers(options: {

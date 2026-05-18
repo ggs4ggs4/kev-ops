@@ -60,7 +60,7 @@ export class Auth0JwtVerifier implements OAuthTokenVerifier {
   async verifyAccessToken(token: string): Promise<AuthInfo> {
     const { payload } = await jwtVerify(token, jwks, {
       issuer: config.auth.issuer,
-      audience: config.auth.audience,
+      audience: [...config.auth.acceptedAudiences],
     });
 
     const scopes = [

@@ -20,6 +20,7 @@ This is intentionally optimized for hackathon budget.
 - AWS credentials configured
 - repo pushed to a reachable Git URL
 - Auth0 API configured (issuer/audience/JWKS)
+  - `auth0_audience` should be a stable URI (example: `https://kev-ops-mcp-api`)
 
 ## Usage
 
@@ -45,6 +46,9 @@ terraform output public_ip
 
 - If `app_domain` is empty, bootstrap uses `<elastic-ip>.nip.io`.
 - `host_port=80` is cheapest/simplest for demos.
+- For Auth0 + MCP, set API Identifier and Tenant Default Audience to `auth0_audience` (stable, not EC2/IP bound).
+- Optional migration safety: keep old host-bound audience in `auth0_audience_aliases_csv` until clients re-login.
+- AMI drift is ignored after first apply to avoid surprise instance replacement. Set `ami_id` explicitly when you want to roll AMIs.
 - Commit `.terraform.lock.hcl` to the repo. Do not commit `.terraform/`, `terraform.tfvars`, or `*.tfstate`.
 - To destroy everything:
 

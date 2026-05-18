@@ -28,6 +28,12 @@ variable "instance_type" {
   default     = "t3a.micro"
 }
 
+variable "ami_id" {
+  description = "Optional AMI override. When unset, latest Amazon Linux 2023 is used for first deploy."
+  type        = string
+  default     = ""
+}
+
 variable "root_volume_size_gb" {
   description = "Root EBS volume size in GB."
   type        = number
@@ -81,8 +87,20 @@ variable "auth0_issuer" {
 }
 
 variable "auth0_audience" {
-  description = "Auth0 API audience identifier."
+  description = "Primary Auth0 API audience identifier. Use a stable URI that does not depend on instance IP/host."
   type        = string
+}
+
+variable "auth0_audience_aliases_csv" {
+  description = "Optional comma-separated extra audiences accepted by the resource server during transitions."
+  type        = string
+  default     = ""
+}
+
+variable "auth0_resource" {
+  description = "Optional OAuth protected resource identifier to advertise in PRM. Defaults to auth0_audience."
+  type        = string
+  default     = ""
 }
 
 variable "auth0_jwks_uri" {
