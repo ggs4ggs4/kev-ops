@@ -78,6 +78,12 @@ Optional:
 - `NVD_API_KEY` to improve NVD API headroom
 - `AUTH0_RESOURCE` (resource identifier advertised in PRM; defaults to `AUTH0_AUDIENCE`)
 - `AUTH0_AUDIENCE_ALIASES` (comma-separated transition audiences during migrations)
+- OSV performance knobs for large scans:
+  - `OSV_BATCH_CHUNK_SIZE`
+  - `OSV_BATCH_CONCURRENCY`
+  - `OSV_BATCH_FALLBACK_CONCURRENCY`
+  - `OSV_QUERY_BATCH_TIMEOUT_MS`
+  - `OSV_QUERY_TIMEOUT_MS`
 
 ## 2) Install and run locally
 
@@ -186,6 +192,7 @@ terraform apply
 - Lockfile scanning is capped per tier:
   - Premium: `LOCKFILE_SCAN_MAX_DEPS_PREMIUM`
   - Analyst: `LOCKFILE_SCAN_MAX_DEPS_ANALYST`
+- `scan_node_lockfile` may return `degraded=true` with `unresolvedSamples` if some upstream lookups time out; rerun usually resolves after cache warmup.
 
 ## Useful commands
 

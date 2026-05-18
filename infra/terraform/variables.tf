@@ -149,3 +149,39 @@ variable "log_level" {
   type        = string
   default     = "info"
 }
+
+variable "osv_query_timeout_ms" {
+  description = "Timeout for single OSV package queries."
+  type        = number
+  default     = 20000
+}
+
+variable "osv_query_batch_timeout_ms" {
+  description = "Timeout for OSV batch queries."
+  type        = number
+  default     = 30000
+}
+
+variable "osv_batch_chunk_size" {
+  description = "Packages per OSV batch request."
+  type        = number
+  default     = 40
+}
+
+variable "osv_batch_concurrency" {
+  description = "Parallel OSV batch requests."
+  type        = number
+  default     = 4
+}
+
+variable "osv_batch_fallback_concurrency" {
+  description = "Parallel fallback single-package OSV queries."
+  type        = number
+  default     = 6
+}
+
+variable "osv_max_pages_per_query" {
+  description = "Max pagination depth for OSV query/querybatch loops."
+  type        = number
+  default     = 4
+}

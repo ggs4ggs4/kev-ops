@@ -88,6 +88,14 @@ CACHE_EPSS_TTL_SEC=86400
 CACHE_EPSS_STALE_SEC=604800
 CACHE_OSV_TTL_SEC=43200
 CACHE_OSV_STALE_SEC=259200
+OSV_QUERY_URL=https://api.osv.dev/v1/query
+OSV_QUERY_BATCH_URL=https://api.osv.dev/v1/querybatch
+OSV_QUERY_TIMEOUT_MS=${osv_query_timeout_ms}
+OSV_QUERY_BATCH_TIMEOUT_MS=${osv_query_batch_timeout_ms}
+OSV_BATCH_CHUNK_SIZE=${osv_batch_chunk_size}
+OSV_BATCH_CONCURRENCY=${osv_batch_concurrency}
+OSV_BATCH_FALLBACK_CONCURRENCY=${osv_batch_fallback_concurrency}
+OSV_MAX_PAGES_PER_QUERY=${osv_max_pages_per_query}
 NVD_API_KEY=${nvd_api_key}
 LOG_LEVEL=${log_level}
 EOF

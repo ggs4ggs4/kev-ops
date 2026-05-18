@@ -317,8 +317,8 @@ export function createMcpServerForTier(
         const maxDependencies = Math.min(requestedMax ?? tierCap, tierCap);
         const parsed = parseNodeLockfile(lockfileContent);
         const truncated = parsed.slice(0, maxDependencies);
-        const osvFindings = await deps.osvClient.queryBatch(truncated);
-        const withVulns = osvFindings
+        const osvBatch = await deps.osvClient.queryBatchDetailed(truncated);
+        const withVulns = osvBatch.results
           .filter((entry) => entry.vulnerabilities.length > 0)
           .map((entry) => ({
             packageName: entry.packageName,
@@ -335,7 +335,11 @@ export function createMcpServerForTier(
           vulnerableDependencyCount: withVulns.length,
           totalFindings,
           findings: withVulns,
+          unresolvedDependencyCount: osvBatch.unresolved.length,
+          unresolvedDependencies: osvBatch.unresolved.slice(0, 100),
         });
+        const freshCount = osvBatch.results.filter((entry) => entry.cacheState === "fresh").length;
+        const staleCount = osvBatch.results.filter((entry) => entry.cacheState === "stale").length;
         return {
           data: {
             scanId: saved.scanId,
@@ -344,9 +348,20 @@ export function createMcpServerForTier(
             vulnerableDependencyCount: saved.vulnerableDependencyCount,
             totalFindings: saved.totalFindings,
             topPackages: withVulns.slice(0, 20),
+            resolvedDependencyCount: osvBatch.results.length,
+            unresolvedDependencyCount: osvBatch.unresolved.length,
+            unresolvedSamples: osvBatch.unresolved.slice(0, 20),
+            degraded: osvBatch.unresolved.length > 0,
+            cacheSummary: {
+              fresh: freshCount,
+              stale: staleCount,
+            },
             truncatedFrom: parsed.length,
           },
-          cacheSignals: osvFindings.map((entry) => `osv:${entry.cacheState}`),
+          cacheSignals: [
+            ...osvBatch.results.map((entry) => `osv:${entry.cacheState}`),
+            ...(osvBatch.unresolved.length > 0 ? [`osv:partial:${osvBatch.unresolved.length}`] : []),
+          ],
         };
       }),
     );

@@ -86,22 +86,28 @@ resource "aws_instance" "mcp_server" {
   }
 
   user_data = templatefile("${path.module}/templates/user_data.sh.tftpl", {
-    repo_url                 = var.repo_url
-    repo_ref                 = var.repo_ref
-    host_port                = var.host_port
-    app_domain               = var.app_domain
-    auth_required            = var.auth_required
-    auth0_issuer             = var.auth0_issuer
-    auth0_audience           = var.auth0_audience
-    auth0_audience_aliases_csv = var.auth0_audience_aliases_csv
-    auth0_resource           = var.auth0_resource != "" ? var.auth0_resource : var.auth0_audience
-    auth0_jwks_uri           = var.auth0_jwks_uri
-    auth0_tier_claim         = var.auth0_tier_claim
-    auth0_roles_claim        = var.auth0_roles_claim
-    auth0_default_tier       = var.auth0_default_tier
-    auth_required_scopes_csv = var.auth_required_scopes_csv
-    nvd_api_key              = var.nvd_api_key
-    log_level                = var.log_level
+    repo_url                       = var.repo_url
+    repo_ref                       = var.repo_ref
+    host_port                      = var.host_port
+    app_domain                     = var.app_domain
+    auth_required                  = var.auth_required
+    auth0_issuer                   = var.auth0_issuer
+    auth0_audience                 = var.auth0_audience
+    auth0_audience_aliases_csv     = var.auth0_audience_aliases_csv
+    auth0_resource                 = var.auth0_resource != "" ? var.auth0_resource : var.auth0_audience
+    auth0_jwks_uri                 = var.auth0_jwks_uri
+    auth0_tier_claim               = var.auth0_tier_claim
+    auth0_roles_claim              = var.auth0_roles_claim
+    auth0_default_tier             = var.auth0_default_tier
+    auth_required_scopes_csv       = var.auth_required_scopes_csv
+    nvd_api_key                    = var.nvd_api_key
+    log_level                      = var.log_level
+    osv_query_timeout_ms           = var.osv_query_timeout_ms
+    osv_query_batch_timeout_ms     = var.osv_query_batch_timeout_ms
+    osv_batch_chunk_size           = var.osv_batch_chunk_size
+    osv_batch_concurrency          = var.osv_batch_concurrency
+    osv_batch_fallback_concurrency = var.osv_batch_fallback_concurrency
+    osv_max_pages_per_query        = var.osv_max_pages_per_query
   })
 
   tags = {

@@ -69,6 +69,13 @@ export interface LockfileScanResult {
   vulnerableDependencyCount: number;
   totalFindings: number;
   findings: PackageFinding[];
+  unresolvedDependencyCount?: number;
+  unresolvedDependencies?: Array<{
+    packageName: string;
+    version: string;
+    direct: boolean;
+    reason: string;
+  }>;
 }
 
 export interface TriageVerdict {

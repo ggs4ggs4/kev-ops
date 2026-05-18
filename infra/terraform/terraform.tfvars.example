@@ -36,3 +36,11 @@ auth_required_scopes_csv = "mcp:tools"
 # Optional
 nvd_api_key = ""
 log_level   = "info"
+
+# Optional OSV scan tuning
+osv_query_timeout_ms = 20000
+osv_query_batch_timeout_ms = 30000
+osv_batch_chunk_size = 40
+osv_batch_concurrency = 4
+osv_batch_fallback_concurrency = 6
+osv_max_pages_per_query = 4
