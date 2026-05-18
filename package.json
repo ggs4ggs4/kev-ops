@@ -9,7 +9,8 @@
     "dev": "tsx watch src/index.ts",
     "build": "tsc -p tsconfig.json",
     "start": "node dist/index.js",
-    "demo:load": "tsx scripts/load-test.ts"
+    "demo:load": "tsx scripts/load-test.ts",
+    "demo:samples": "node scripts/validate-samples-live.mjs"
   },
   "keywords": [],
   "author": "",

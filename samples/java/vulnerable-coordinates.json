@@ -1,0 +1,12 @@
+[
+  {
+    "packageName": "com.fasterxml.jackson.core:jackson-databind",
+    "version": "2.9.9",
+    "ecosystem": "Maven"
+  },
+  {
+    "packageName": "org.apache.logging.log4j:log4j-core",
+    "version": "2.14.1",
+    "ecosystem": "Maven"
+  }
+]

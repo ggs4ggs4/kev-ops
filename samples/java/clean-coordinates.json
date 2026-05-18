@@ -1,0 +1,12 @@
+[
+  {
+    "packageName": "com.fasterxml.jackson.core:jackson-databind",
+    "version": "2.17.2",
+    "ecosystem": "Maven"
+  },
+  {
+    "packageName": "junit:junit",
+    "version": "4.13.2",
+    "ecosystem": "Maven"
+  }
+]

@@ -186,6 +186,14 @@ terraform apply
 6. Trigger repeated tool calls to show `429` + `Retry-After`
 7. Re-run same call and show cache-influenced speed + audit rows
 
+## 7) Ready-Made Samples
+
+Demo sample inputs are available in [samples/README.md](samples/README.md):
+
+- Node lockfiles with clean, mixed, and high-risk scenarios
+- Java Maven coordinates with clean and vulnerable scenarios
+- Optional one-command live validation (`npm run demo:samples`)
+
 ## Notes
 
 - If upstream APIs fail, cached stale data is served when available.
