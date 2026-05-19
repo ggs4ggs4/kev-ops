@@ -122,7 +122,7 @@ export function createMcpServerForTier(
     },
     {
       instructions:
-        "Use this server for exploit-first vulnerability triage. Prefer triage_cve and build_patch_queue for analyst-grade decisions. Always include cited evidence fields from outputs.",
+        "Use this server for exploit-first vulnerability triage. For dependency graph prioritization, run scan_node_lockfile first, then build_patch_queue using the returned scanId. Prefer triage_cve and build_patch_queue for analyst-grade decisions. Always include cited evidence fields from outputs.",
       capabilities: {
         logging: {},
       },
@@ -267,7 +267,8 @@ export function createMcpServerForTier(
       "analyze_package_version",
       {
         title: "Analyze Package Version",
-        description: "Query OSV advisories for a specific package@version.",
+        description:
+          "Query OSV advisories for a specific package@version in a chosen ecosystem (default: npm). Useful for npm, Maven, PyPI, Go, and other OSV ecosystems.",
         inputSchema: {
           packageName: z.string().min(1),
           version: z.string().min(1),
@@ -303,7 +304,7 @@ export function createMcpServerForTier(
       {
         title: "Scan Node Lockfile",
         description:
-          "Parse package-lock.json, pnpm-lock.yaml, or yarn.lock content and query OSV for vulnerable dependencies.",
+          "Full dependency scan for package-lock.json, pnpm-lock.yaml, or yarn.lock text. Returns scanId for follow-up ranking with build_patch_queue.",
         inputSchema: {
           lockfileContent: z.string().min(10),
           maxDependencies: z.number().int().min(1).max(1000).optional(),
@@ -398,7 +399,7 @@ export function createMcpServerForTier(
       {
         title: "Build Patch Queue",
         description:
-          "Build a ranked patch queue from a previous lockfile scan with exploit-first prioritization.",
+          "Build an exploit-first ranked patch queue from a previous lockfile scan. Pass scanId from scan_node_lockfile (or omit to use latest saved scan).",
         inputSchema: {
           scanId: z.string().uuid().optional(),
         },

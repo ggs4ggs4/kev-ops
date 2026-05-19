@@ -101,6 +101,12 @@ export function installAuthMetadataRoutes(
   ];
   const canonicalResourceMetadataUrl = getOAuthProtectedResourceMetadataUrl(mcpServerUrl);
   const configuredResourceMetadataUrl = getOAuthProtectedResourceMetadataUrl(resourceServerUrl);
+  const protectedResourceMetadata = {
+    resource: resourceServerUrl.href,
+    authorization_servers: [oauth.issuer],
+    scopes_supported: scopesSupported,
+    resource_name: "KEV-OPS MCP Server",
+  };
   app.use(
     mcpAuthMetadataRouter({
       oauthMetadata: oauth,
@@ -110,15 +116,18 @@ export function installAuthMetadataRoutes(
     }),
   );
 
-  // Serve PRM at the canonical MCP-derived path even when the resource identifier is decoupled.
-  if (configuredResourceMetadataUrl !== canonicalResourceMetadataUrl) {
-    app.get(new URL(canonicalResourceMetadataUrl).pathname, (_req, res) => {
-      res.json({
-        resource: resourceServerUrl.href,
-        authorization_servers: [oauth.issuer],
-        scopes_supported: scopesSupported,
-        resource_name: "KEV-OPS MCP Server",
-      });
+  const canonicalResourceMetadataPath = new URL(canonicalResourceMetadataUrl).pathname;
+  const rootResourceMetadataPath = "/.well-known/oauth-protected-resource";
+
+  // Always provide canonical path metadata explicitly for client compatibility.
+  app.get(canonicalResourceMetadataPath, (_req, res) => {
+    res.json(protectedResourceMetadata);
+  });
+
+  // Compatibility alias: some clients probe the root well-known path first.
+  if (canonicalResourceMetadataPath !== rootResourceMetadataPath) {
+    app.get(rootResourceMetadataPath, (_req, res) => {
+      res.json(protectedResourceMetadata);
     });
   }
 
