@@ -62,9 +62,10 @@ function extractToolName(body: unknown): string | null {
 }
 
 function authMetadata() {
-  const issuer = config.auth.issuer.endsWith("/")
-    ? config.auth.issuer.slice(0, -1)
-    : config.auth.issuer;
+  const issuer = config.auth.issuer;
+  const issuerBase = issuer.endsWith("/")
+    ? issuer.slice(0, -1)
+    : issuer;
   const scopes = [
     "mcp:tools",
     "tier:free",
@@ -75,15 +76,15 @@ function authMetadata() {
   const scopesSupported = [...new Set(scopes)];
   return {
     issuer,
-    authorization_endpoint: `${issuer}/authorize`,
-    token_endpoint: `${issuer}/oauth/token`,
-    registration_endpoint: `${issuer}/oidc/register`,
-    revocation_endpoint: `${issuer}/oauth/revoke`,
+    authorization_endpoint: `${issuerBase}/authorize`,
+    token_endpoint: `${issuerBase}/oauth/token`,
+    registration_endpoint: `${issuerBase}/oidc/register`,
+    revocation_endpoint: `${issuerBase}/oauth/revoke`,
     response_types_supported: ["code"],
     grant_types_supported: ["authorization_code", "refresh_token", "client_credentials"],
     code_challenge_methods_supported: ["S256"],
     scopes_supported: scopesSupported,
-    token_endpoint_auth_methods_supported: ["none", "client_secret_post"],
+    token_endpoint_auth_methods_supported: ["none", "client_secret_post", "client_secret_basic"],
   };
 }
 
